@@ -33,8 +33,14 @@ def send_promo_message():
 
 def send_telegram_quiz():
     try:
-        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-        headers = {'Content-Type': 'application/json'}
+        # API URL theke key soriye neya hoyeche
+        gemini_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+        
+        # Key ebar Header-er vitor pathano hocche (thik tomar cURL er moton)
+        headers = {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': GEMINI_API_KEY
+        }
         data = {"contents": [{"parts": [{"text": prompt}]}]}
         
         gemini_response = requests.post(gemini_url, headers=headers, json=data)
