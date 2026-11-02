@@ -1,15 +1,12 @@
 import json
 import requests
-import google.generativeai as genai
 import time
 
-GEMINI_API_KEY = "AQ.Ab8RN6LuVtIupwbZH_7j4420kNX2mRA9NQ-TNqqXP0Jh3tKpVQ"
+# Tomar Keys ebong IDs
+GEMINI_API_KEY = "AQ.Ab8RN6Ktbosuyw0IU9frgQrHr9RzIfa-uJHMsse8WhkdKttJYg"
 BOT_TOKEN = "9298370440:AAF1JezIFO2KANgAz4zVUdQtPPtklI5unlc"
 CHAT_ID = "-1004438825799"
 AFFILIATE_LINK = "https://t.me/india_top_deals"
-
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
 
 prompt = """
 West Bengal Police (WBP) Constable First Exam (Prelims) pass korar jonno ekdom standard o hard level-er 5 ti General Knowledge MCQ banaw Bengali bhashay. 
@@ -37,12 +34,20 @@ def send_promo_message():
 
 def send_telegram_quiz():
     try:
-        response = model.generate_content(prompt)
-        json_data = response.text.replace('```json', '').replace('```', '').strip()
+        # Direct API call using requests (bypassing the buggy SDK)
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+        headers = {'Content-Type': 'application/json'}
+        data = {"contents": [{"parts": [{"text": prompt}]}]}
+        
+        gemini_response = requests.post(gemini_url, headers=headers, json=data)
+        gemini_response.raise_for_status()
+        
+        response_text = gemini_response.json()['candidates'][0]['content']['parts'][0]['text']
+        json_data = response_text.replace('```json', '').replace('```', '').strip()
         quizzes = json.loads(json_data)
         
         for quiz in quizzes:
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPoll"
+            telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPoll"
             payload = {
                 "chat_id": CHAT_ID,
                 "question": quiz["question"],
@@ -51,7 +56,7 @@ def send_telegram_quiz():
                 "correct_option_id": quiz["correct_option_id"],
                 "is_anonymous": True
             }
-            requests.post(url, data=payload)
+            requests.post(telegram_url, data=payload)
             time.sleep(3) 
             
         send_promo_message()
