@@ -2,7 +2,6 @@ import json
 import requests
 import time
 
-# Tomar Keys ebong IDs
 GEMINI_API_KEY = "AQ.Ab8RN6Ktbosuyw0IU9frgQrHr9RzIfa-uJHMsse8WhkdKttJYg"
 BOT_TOKEN = "9298370440:AAF1JezIFO2KANgAz4zVUdQtPPtklI5unlc"
 CHAT_ID = "-1004438825799"
@@ -34,7 +33,6 @@ def send_promo_message():
 
 def send_telegram_quiz():
     try:
-        # Direct API call using requests (bypassing the buggy SDK)
         gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
         headers = {'Content-Type': 'application/json'}
         data = {"contents": [{"parts": [{"text": prompt}]}]}
