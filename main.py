@@ -2,7 +2,7 @@ import json
 import requests
 import time
 
-GEMINI_API_KEY = "AQ.Ab8RN6Ktbosuyw0IU9frgQrHr9RzIfa-uJHMsse8WhkdKttJYg"
+GEMINI_API_KEY = "AQ.Ab8RN6KSQDcpkIQFg-Pp788RG9SzRyq-Ql8wQbkcLgwLFEVLYg"
 BOT_TOKEN = "9298370440:AAF1JezIFO2KANgAz4zVUdQtPPtklI5unlc"
 CHAT_ID = "-1004438825799"
 AFFILIATE_LINK = "https://t.me/india_top_deals"
@@ -33,10 +33,7 @@ def send_promo_message():
 
 def send_telegram_quiz():
     try:
-        # API URL theke key soriye neya hoyeche
         gemini_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-        
-        # Key ebar Header-er vitor pathano hocche (thik tomar cURL er moton)
         headers = {
             'Content-Type': 'application/json',
             'x-goog-api-key': GEMINI_API_KEY
@@ -47,8 +44,16 @@ def send_telegram_quiz():
         gemini_response.raise_for_status()
         
         response_text = gemini_response.json()['candidates'][0]['content']['parts'][0]['text']
-        json_data = response_text.replace('```json', '').replace('```', '').strip()
-        quizzes = json.loads(json_data)
+        
+        json_str = response_text.strip()
+        if json_str.startswith("```"):
+            json_str = json_str.split("\n", 1)[1]
+        if json_str.endswith("```"):
+            json_str = json_str.rsplit("\n", 1)[0]
+        if json_str.startswith("json"):
+            json_str = json_str[4:].strip()
+            
+        quizzes = json.loads(json_str)
         
         for quiz in quizzes:
             telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPoll"
@@ -66,7 +71,7 @@ def send_telegram_quiz():
         send_promo_message()
             
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error details: {e}")
 
 if __name__ == "__main__":
     send_telegram_quiz()
